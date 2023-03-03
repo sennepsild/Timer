@@ -9,35 +9,50 @@ public class Timer : MonoBehaviour
     float MinutesTimer = 5;
     [SerializeField]
     TMP_Text TimerText,PlayerText;
+    [SerializeField]
+    GameObject timerUI;
 
     float currentTime;
     int currentPlayer = 1;
 
-    private void Start()
+    bool gameHasBegun = false;
+    bool isReady = false;
+    public void BeginTimer()
     {
+        timerUI.SetActive(true);
+        gameHasBegun = true;
         currentTime = MinutesTimer * 60;
         ShowCurrentPlayer();
     }
 
     private void Update()
     {
-        currentTime -= Time.deltaTime;
-        CalculateAndShowTimer();
-        if(currentTime <= 0)
+        if (gameHasBegun)
         {
-            UpdatePlayerAndResetTime();
+            if (isReady)
+            {
+                currentTime -= Time.deltaTime;
+            }
+            
+            CalculateAndShowTimer();
+            if (currentTime <= 0)
+            {
+                isReady = false;
+                UpdatePlayerAndResetTime();
+            }
         }
     }
     void UpdatePlayerAndResetTime()
     {
         currentTime = MinutesTimer * 60;
-        currentPlayer = (currentPlayer % PlayerHandler.MaxPlayers) + 1;
+        currentPlayer = (currentPlayer % PlayerHandler.PlayersInGame) + 1;
         ShowCurrentPlayer();
     }
 
     void ShowCurrentPlayer()
     {
-        PlayerText.text = $"Current Player: {currentPlayer}";
+        PlayerText.text = $"Current Player {currentPlayer}";
+        PlayerText.color = PlayerHandler.playerCols[currentPlayer-1];
     }
 
     void CalculateAndShowTimer()
@@ -56,5 +71,10 @@ public class Timer : MonoBehaviour
         timeAsString += seconds.ToString();
 
         TimerText.text = timeAsString;
+    }
+
+    public void SetReady()
+    {
+        isReady = true;
     }
 }
